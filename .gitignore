@@ -28,3 +28,6 @@ results/backtests/
 
 #Credentials
 .env
+
+#csv files
+*.csv
