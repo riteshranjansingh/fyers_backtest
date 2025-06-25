@@ -1,0 +1,30 @@
+# Environment
+.env
+venv/
+__pycache__/
+*.pyc
+.DS_Store
+
+# Data (too large for git)
+data/raw/
+data/processed/
+data/cache/
+
+# Logs
+logs/
+*.log
+
+# Results (can be large)
+results/backtests/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# Temporary
+*.tmp
+.cache/
+
+#Credentials
+.env
