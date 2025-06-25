@@ -24,5 +24,12 @@
     "None",
     "0.1",
     "0.0"
-  ]
+  ],
+  "column_mappings": {
+    "symbol": "NSE:ABAN-EQ",
+    "name": "ABAN OFFSHORE LTD.",
+    "isin": "INE421A01028",
+    "short_symbol": "ABAN"
+  },
+  "mappings_updated": "2025-06-25T19:46:52.671190"
 }
