@@ -40,6 +40,8 @@ data_backup_*/
 
 
 # progress and roadmap mark documentation files
+*.md
 folder_structure.md
 project_roadmap.md
 project_status_comprehensive.md
+ui/main_app.py
