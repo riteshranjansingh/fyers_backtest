@@ -1,5 +1,5 @@
 """
-Position Sizer - 1-3% Risk Per Trade Calculator
+Position Sizer - 1-3% Risk Per Trade Calculator - FIXED VERSION
 Calculates optimal position sizes based on account risk management
 """
 import pandas as pd
@@ -91,9 +91,11 @@ class PositionSizer:
             Dictionary with position sizing details
         """
         try:
-            # Validate inputs
-            if entry_price <= 0 or stop_loss_price <= 0:
-                raise ValueError("Entry and stop loss prices must be positive")
+            # FIXED: Better input validation
+            if entry_price <= 0:
+                raise ValueError(f"Entry price must be positive, got {entry_price}")
+            if stop_loss_price <= 0:
+                raise ValueError(f"Stop loss price must be positive, got {stop_loss_price}")
             
             # Calculate risk per share
             risk_per_share = abs(entry_price - stop_loss_price)
@@ -101,18 +103,31 @@ class PositionSizer:
             if risk_per_share == 0:
                 raise ValueError("Stop loss must be different from entry price")
             
+            # FIXED: Add minimum risk per share check
+            min_risk_per_share = entry_price * 0.002  # Minimum 0.2% risk per share
+            if risk_per_share < min_risk_per_share:
+                logger.warning(f"Risk per share ({risk_per_share:.2f}) very small, using minimum {min_risk_per_share:.2f}")
+                risk_per_share = min_risk_per_share
+            
             # Determine risk percentage to use
             risk_pct = custom_risk_pct or self.config.risk_percentage
             
             # Calculate base position size
             risk_amount = self.config.account_balance * (risk_pct / 100)
-            base_quantity = int(risk_amount / risk_per_share)
+            
+            # FIXED: Better quantity calculation with debugging
+            base_quantity = risk_amount / risk_per_share
+            logger.debug(f"Risk calculation: ₹{risk_amount:.0f} risk / ₹{risk_per_share:.2f} per share = {base_quantity:.2f} shares")
+            
+            # FIXED: Ensure minimum quantity of 1
+            base_quantity = max(1, int(base_quantity))
             
             # Calculate transaction costs
             transaction_costs = self._calculate_transaction_costs(entry_price, base_quantity)
             
-            # Adjust for transaction costs
-            adjusted_risk_amount = risk_amount - transaction_costs
+            # FIXED: Simplified adjustment for transaction costs
+            # Reduce risk amount by transaction costs and recalculate
+            adjusted_risk_amount = max(risk_amount - transaction_costs, risk_amount * 0.9)  # Keep at least 90% of risk
             adjusted_quantity = max(1, int(adjusted_risk_amount / risk_per_share))
             
             # Apply position size limits
@@ -121,6 +136,9 @@ class PositionSizer:
             )
             
             final_quantity = min(adjusted_quantity, max_quantity_by_balance)
+            
+            # FIXED: Ensure final quantity is at least 1 if we got this far
+            final_quantity = max(1, final_quantity)
             
             # Calculate actual position value and risk
             position_value = final_quantity * entry_price
@@ -144,7 +162,8 @@ class PositionSizer:
                 'concentration_warning': concentration_warning,
                 'entry_price': entry_price,
                 'stop_loss_price': stop_loss_price,
-                'stop_loss_pct': (risk_per_share / entry_price) * 100
+                'stop_loss_pct': (risk_per_share / entry_price) * 100,
+                'valid': True
             }
             
             logger.debug(f"Position size calculated: {final_quantity} shares, ₹{position_value:,.0f} value, {actual_risk_pct:.2f}% risk")
@@ -377,7 +396,7 @@ def quick_position_size(
     if risk_per_share == 0:
         return 0
     
-    return int(risk_amount / risk_per_share)
+    return max(1, int(risk_amount / risk_per_share))
 
 
 def calculate_risk_reward_ratio(

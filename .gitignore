@@ -30,12 +30,16 @@ results/backtests/
 .env
 
 
-#data files and folders
+# data files and folders
 data_backup_*/
 
-#csv files
+# csv files
 *.csv
-#json files
+# json files
 *.json
 
 
+# progress and roadmap mark documentation files
+folder_structure.md
+project_roadmap.md
+project_status_comprehensive.md

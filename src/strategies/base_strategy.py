@@ -369,11 +369,19 @@ class CrossoverStrategy(BaseStrategy):
         separation = (fast_line - slow_line) / slow_line * 100
         
         if normalize:
-            # Normalize using rolling percentiles to get 0-1 range
-            window = min(100, len(separation) // 4)  # Adaptive window
+            # Improved normalization: use broader range and avoid over-penalizing small separations
+            window = min(50, len(separation) // 3)  # Shorter window for more responsive strength
             separation_abs = abs(separation)
-            rolling_max = separation_abs.rolling(window=window, min_periods=1).quantile(0.95)
-            strength = separation_abs / rolling_max
+            
+            # Use 75th percentile instead of 95th for more reasonable scaling
+            rolling_reference = separation_abs.rolling(window=window, min_periods=1).quantile(0.75)
+            
+            # Add minimum threshold to prevent division by very small numbers
+            rolling_reference = rolling_reference.clip(lower=0.1)  # Min 0.1% separation
+            
+            strength = separation_abs / rolling_reference
+            # Use sigmoid-like scaling for better distribution
+            strength = 1 / (1 + np.exp(-3 * (strength - 0.5)))  # Sigmoid centered at 0.5
             strength = strength.clip(0, 1)  # Ensure 0-1 range
         else:
             strength = abs(separation)

@@ -42,10 +42,10 @@ class GapConfig:
     enable_gap_protection: bool = True
     max_gap_exposure_pct: float = 3.0  # Maximum gap exposure
     
-    # Position size adjustments for gap risk
-    overnight_position_reduction: float = 0.8  # Reduce overnight positions by 20%
-    weekend_position_reduction: float = 0.6  # Reduce weekend positions by 40%
-    earnings_position_reduction: float = 0.5  # Reduce positions before earnings by 50%
+    # Position size adjustments for gap risk - reduced aggressiveness
+    overnight_position_reduction: float = 0.9  # Reduce overnight positions by 10%
+    weekend_position_reduction: float = 0.8  # Reduce weekend positions by 20%
+    earnings_position_reduction: float = 0.7  # Reduce positions before earnings by 30%
     
     # Stop loss adjustments
     gap_stop_buffer_pct: float = 1.0  # Additional buffer for gap protection
@@ -61,7 +61,7 @@ class GapConfig:
     
     # Weekend and holiday handling
     reduce_friday_positions: bool = True
-    friday_reduction_factor: float = 0.7  # Reduce Friday positions by 30%
+    friday_reduction_factor: float = 0.9  # Reduce Friday positions by 10%
 
 
 @dataclass
@@ -326,11 +326,11 @@ class GapHandler:
         # Calculate historical gap risk for this symbol
         historical_gap_risk = self._calculate_historical_gap_risk(symbol)
         if historical_gap_risk > 0.02:  # High historical gap risk
-            adjustment_factor *= 0.8
-            adjustments.append(f"Historical gap risk reduction: 20%")
+            adjustment_factor *= 0.9  # Reduced from 0.8 to 0.9
+            adjustments.append(f"Historical gap risk reduction: 10%")
         
-        # Apply adjustments
-        adjusted_size = int(base_position_size * adjustment_factor)
+        # Apply adjustments with minimum position size protection
+        adjusted_size = max(1, int(base_position_size * adjustment_factor))
         total_reduction_pct = (1 - adjustment_factor) * 100
         
         return {

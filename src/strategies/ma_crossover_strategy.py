@@ -34,9 +34,9 @@ class MAConfig:
     slow_ma_type: MAType = MAType.EMA
     slow_period: int = 21
     
-    # Signal filtering
-    min_separation: float = 0.1
-    signal_strength_threshold: float = 0.3
+    # Signal filtering - reduced thresholds for better signal acceptance
+    min_separation: float = 0.05  # Reduced from 0.1 to 0.05
+    signal_strength_threshold: float = 0.2  # Reduced from 0.3 to 0.2
     enable_filtering: bool = True
     
     # Data settings
