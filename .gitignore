@@ -29,9 +29,13 @@ results/backtests/
 #Credentials
 .env
 
+
+#data files and folders
+data_backup_*/
+
 #csv files
 *.csv
-
 #json files
-
 *.json
+
+
